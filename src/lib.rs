@@ -52,11 +52,11 @@ pub fn main_js() -> Result<(), JsValue> {
 			request_animation_frame(f.borrow().as_ref().unwrap());
 	}) as Box<dyn FnMut()>));
 	// request_animation_frame(g.borrow().as_ref().unwrap());
-	start();
+	// start();
 	Ok(())
 }
 
-pub fn start() {
+pub fn start(wave: &[&[f64]]) {
 	let document = web_sys::window().unwrap().document().unwrap();
 	let canvas = document.get_element_by_id("canvas").unwrap();
 	let canvas: web_sys::HtmlCanvasElement = canvas
@@ -71,7 +71,27 @@ pub fn start() {
 		.dyn_into::<web_sys::CanvasRenderingContext2d>()
 		.unwrap();
 	context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
-	create_fill_rect(&context, 0.0, 0.0, 100.0, 100.0, "red");
+
+	let width:f64 = canvas.width().into();
+	let height:f64 = canvas.height().into();
+	let half_h:f64 = height/2.0;
+	let bar_margin:f64 = 0.0;
+	let num:f64 = wave[0].len() as f64;
+	let bar_width:f64 = width / (num-bar_margin);
+
+	for i in 0..wave.len() {
+		for l in 0..wave[0].len() {
+			let sample:f64 = wave[i][l];
+			let bar_height:f64 = sample * half_h / 2.0;
+			let bh:f64 = if i == 0 {
+				-bar_height
+			}else{
+				0.0
+			};
+			create_fill_rect(&context, l as f64 * (bar_width + bar_margin), half_h + bh, bar_width + bar_margin, bar_height, "red");
+			// create_fill_rect(&context, 0.0, 0.0, 100.0, 100.0, "red");
+		}
+	}
 }
 
 fn create_fill_rect(con: &web_sys::CanvasRenderingContext2d, x :f64, y:f64, width:f64, height:f64, color:&str){
