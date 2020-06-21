@@ -56,7 +56,9 @@ pub fn main_js() -> Result<(), JsValue> {
 	Ok(())
 }
 
-pub fn start(wave: &[&[f64]]) {
+#[wasm_bindgen]
+pub fn clear_canvas(){
+	console_error_panic_hook::set_once();
 	let document = web_sys::window().unwrap().document().unwrap();
 	let canvas = document.get_element_by_id("canvas").unwrap();
 	let canvas: web_sys::HtmlCanvasElement = canvas
@@ -71,26 +73,42 @@ pub fn start(wave: &[&[f64]]) {
 		.dyn_into::<web_sys::CanvasRenderingContext2d>()
 		.unwrap();
 	context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+}
+
+#[wasm_bindgen]
+pub fn create_wave(wave: &[f64], p: u32, margin: u32, color: &str) {
+	console_error_panic_hook::set_once();
+	let document = web_sys::window().unwrap().document().unwrap();
+	let canvas = document.get_element_by_id("canvas").unwrap();
+	let canvas: web_sys::HtmlCanvasElement = canvas
+		.dyn_into::<web_sys::HtmlCanvasElement>()
+		.map_err(|_| ())
+		.unwrap();
+
+	let context = canvas
+		.get_context("2d")
+		.unwrap()
+		.unwrap()
+		.dyn_into::<web_sys::CanvasRenderingContext2d>()
+		.unwrap();
 
 	let width:f64 = canvas.width().into();
 	let height:f64 = canvas.height().into();
 	let half_h:f64 = height/2.0;
-	let bar_margin:f64 = 0.0;
-	let num:f64 = wave[0].len() as f64;
+	let bar_margin:f64 = margin as f64;
+	let num:f64 = wave.len() as f64;
 	let bar_width:f64 = width / (num-bar_margin);
 
-	for i in 0..wave.len() {
-		for l in 0..wave[0].len() {
-			let sample:f64 = wave[i][l];
-			let bar_height:f64 = sample * half_h / 2.0;
-			let bh:f64 = if i == 0 {
-				-bar_height
-			}else{
-				0.0
-			};
-			create_fill_rect(&context, l as f64 * (bar_width + bar_margin), half_h + bh, bar_width + bar_margin, bar_height, "red");
-			// create_fill_rect(&context, 0.0, 0.0, 100.0, 100.0, "red");
-		}
+	for l in 0..wave.len() {
+		let sample:f64 = wave[l];
+		let bar_height:f64 = sample * half_h / 2.0;
+		let bh:f64 = if p == 0 {
+			-bar_height
+		}else{
+			0.0
+		};
+		create_fill_rect(&context, l as f64 * (bar_width + bar_margin), half_h + bh, bar_width + bar_margin, bar_height, color);
+		// create_fill_rect(&context, 0.0, 0.0, 100.0, 100.0, "red");
 	}
 }
 
