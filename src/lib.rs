@@ -57,10 +57,10 @@ pub fn main_js() -> Result<(), JsValue> {
 }
 
 #[wasm_bindgen]
-pub fn clear_canvas(){
+pub fn clear_canvas(id: &str){
 	console_error_panic_hook::set_once();
 	let document = web_sys::window().unwrap().document().unwrap();
-	let canvas = document.get_element_by_id("canvas").unwrap();
+	let canvas = document.get_element_by_id(id).unwrap();
 	let canvas: web_sys::HtmlCanvasElement = canvas
 		.dyn_into::<web_sys::HtmlCanvasElement>()
 		.map_err(|_| ())
@@ -76,10 +76,10 @@ pub fn clear_canvas(){
 }
 
 #[wasm_bindgen]
-pub fn create_wave(wave: &[f64], p: u32, margin: u32, color: &str) {
+pub fn create_wave(id: &str, wave: &[f64], p: u32, margin: u32, color: &str) {
 	console_error_panic_hook::set_once();
 	let document = web_sys::window().unwrap().document().unwrap();
-	let canvas = document.get_element_by_id("canvas").unwrap();
+	let canvas = document.get_element_by_id(id).unwrap();
 	let canvas: web_sys::HtmlCanvasElement = canvas
 		.dyn_into::<web_sys::HtmlCanvasElement>()
 		.map_err(|_| ())
