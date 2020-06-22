@@ -1,8 +1,8 @@
 extern crate wasm_bindgen;
 
-use std::f64;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::*;
+// use std::cell::RefCell;
+// use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::console;
@@ -20,18 +20,9 @@ extern {
 }
 
 #[wasm_bindgen]
+//test
 pub fn greet(name: &str) {
 	console::log_1(&format!("Hello, {}!", name).into());
-}
-
-fn window() -> web_sys::Window {
-	web_sys::window().expect("no global `window` exists")
-}
-
-fn request_animation_frame(f: &Closure<dyn FnMut()>) {
-	window()
-		.request_animation_frame(f.as_ref().unchecked_ref())
-		.expect("should register `requestAnimationFrame` OK");
 }
 
 // This is like the `main` function, except for JavaScript.
@@ -40,22 +31,32 @@ pub fn main_js() -> Result<(), JsValue> {
 	#[cfg(debug_assertions)]
 	console_error_panic_hook::set_once();
 
-	// Your code goes here!
-	console::log_1(&JsValue::from_str("Hello world!"));
+	console::log_1(&JsValue::from_str("Hello Wasm!"));
 
-	let f = Rc::new(RefCell::new(None));
-	let g = f.clone();
+	// let f = Rc::new(RefCell::new(None));
+	// let g = f.clone();
 
-	let mut i:f64 = 0.0;
-	*g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
-			i+=1.0;
-			request_animation_frame(f.borrow().as_ref().unwrap());
-	}) as Box<dyn FnMut()>));
+	// let mut i:f64 = 0.0;
+	// *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
+	// 		i+=1.0;
+	// 		request_animation_frame(f.borrow().as_ref().unwrap());
+	// }) as Box<dyn FnMut()>));
 	// request_animation_frame(g.borrow().as_ref().unwrap());
-	// start();
 	Ok(())
 }
 
+// fn window() -> web_sys::Window {
+// 	web_sys::window().expect("no global `window` exists")
+// }
+
+// fn request_animation_frame(f: &Closure<dyn FnMut()>) {
+// 	window()
+// 		.request_animation_frame(f.as_ref().unchecked_ref())
+// 		.expect("should register `requestAnimationFrame` OK");
+// }
+//This is like the `main` function, except for JavaScript.
+
+// drawCanvas
 #[wasm_bindgen]
 pub fn clear_canvas(id: &str){
 	console_error_panic_hook::set_once();
@@ -108,7 +109,6 @@ pub fn create_wave(id: &str, wave: &[f64], p: u32, margin: u32, color: &str) {
 			0.0
 		};
 		create_fill_rect(&context, l as f64 * (bar_width + bar_margin), half_h + bh, bar_width + bar_margin, bar_height, color);
-		// create_fill_rect(&context, 0.0, 0.0, 100.0, 100.0, "red");
 	}
 }
 
@@ -116,3 +116,25 @@ fn create_fill_rect(con: &web_sys::CanvasRenderingContext2d, x :f64, y:f64, widt
 	con.set_fill_style(&JsValue::from(color));
 	con.fill_rect(x, y, width, height);
 }
+//drawCanvas
+
+//peakAnalyzer
+#[wasm_bindgen]
+pub fn get_peaks(arr: &[f32], peak_length: usize) -> Vec<f32> {
+	console_error_panic_hook::set_once();
+	let mut step:usize = arr.len() / peak_length;
+	if step < 1 {step = 1;}
+	let mut peaks: Vec<f32> = vec![];
+	for i in 0..peak_length{
+		let a:usize = i*step;
+		let b:usize = (i+1)*step;
+		peaks.push(get_peak(&arr[a..b]));
+	}
+	return peaks;
+}
+
+fn get_peak(arr: &[f32]) -> f32{
+	console_error_panic_hook::set_once();
+	arr.iter().fold(0.0/0.0, |m, v| v.max(m))
+}
+//peakAnalyzer
